@@ -2,10 +2,10 @@
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f8fafc"/>
-      <stop offset="100%" stop-color="#eef2ff"/>
+      <stop offset="100%" stop-color="#f5f3ff"/>
     </linearGradient>
     <linearGradient id="indigo" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="0%" stop-color="#7c3aed"/>
       <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
     <filter id="shadow">
@@ -29,10 +29,10 @@
   </g>
 
   <!-- Arrow 1 -->
-  <line x1="190" y1="100" x2="220" y2="100" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,3">
+  <line x1="190" y1="100" x2="220" y2="100" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3">
     <animate attributeName="stroke-dashoffset" values="0;-8" dur="1s" repeatCount="indefinite"/>
   </line>
-  <polygon points="220,95 230,100 220,105" fill="#4f46e5"/>
+  <polygon points="220,95 230,100 220,105" fill="#7c3aed"/>
 
   <!-- Step 2: Share Link -->
   <g filter="url(#shadow)">
@@ -45,10 +45,10 @@
   </g>
 
   <!-- Arrow 2 -->
-  <line x1="380" y1="100" x2="410" y2="100" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,3">
+  <line x1="380" y1="100" x2="410" y2="100" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3">
     <animate attributeName="stroke-dashoffset" values="0;-8" dur="1s" repeatCount="indefinite"/>
   </line>
-  <polygon points="410,95 420,100 410,105" fill="#4f46e5"/>
+  <polygon points="410,95 420,100 410,105" fill="#7c3aed"/>
 
   <!-- Step 3: Consent -->
   <g filter="url(#shadow)">
@@ -61,20 +61,20 @@
   </g>
 
   <!-- Arrow 3 -->
-  <line x1="580" y1="100" x2="610" y2="100" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,3">
+  <line x1="580" y1="100" x2="610" y2="100" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3">
     <animate attributeName="stroke-dashoffset" values="0;-8" dur="1s" repeatCount="indefinite"/>
   </line>
-  <polygon points="610,95 620,100 610,105" fill="#4f46e5"/>
+  <polygon points="610,95 620,100 610,105" fill="#7c3aed"/>
 
   <!-- Step 4: Live Interview (big box) -->
   <g filter="url(#shadow)">
-    <rect x="620" y="55" width="165" height="90" rx="10" fill="#4f46e5"/>
+    <rect x="620" y="55" width="165" height="90" rx="10" fill="#7c3aed"/>
     <circle cx="645" cy="75" r="12" fill="white"/>
-    <text x="645" y="79" text-anchor="middle" font-size="11" font-weight="700" fill="#4f46e5">4</text>
+    <text x="645" y="79" text-anchor="middle" font-size="11" font-weight="700" fill="#7c3aed">4</text>
     <text x="665" y="78" font-size="12" font-weight="700" fill="white">Live Interview</text>
-    <text x="630" y="98" font-size="9" fill="#c7d2fe">AI asks questions via voice</text>
-    <text x="630" y="111" font-size="9" fill="#c7d2fe">Candidate responds live</text>
-    <text x="630" y="124" font-size="9" fill="#c7d2fe">Proctoring monitors</text>
+    <text x="630" y="98" font-size="9" fill="#ddd6fe">AI asks questions via voice</text>
+    <text x="630" y="111" font-size="9" fill="#ddd6fe">Candidate responds live</text>
+    <text x="630" y="124" font-size="9" fill="#ddd6fe">Proctoring monitors</text>
 
     <!-- Pulsing dot -->
     <circle cx="770" cy="68" r="4" fill="#22c55e">
@@ -108,25 +108,25 @@
     <line x1="240" y1="62" x2="265" y2="62" stroke="#3b82f6" stroke-width="1.5"/>
 
     <!-- AI Brain -->
-    <rect x="265" y="40" width="85" height="45" rx="8" fill="#eef2ff" stroke="#c7d2fe"/>
-    <text x="307" y="58" text-anchor="middle" font-size="9" font-weight="600" fill="#4f46e5">AI Brain</text>
-    <text x="307" y="72" text-anchor="middle" font-size="9" fill="#4f46e5">generates Q</text>
+    <rect x="265" y="40" width="85" height="45" rx="8" fill="#f5f3ff" stroke="#ddd6fe"/>
+    <text x="307" y="58" text-anchor="middle" font-size="9" font-weight="600" fill="#7c3aed">AI Brain</text>
+    <text x="307" y="72" text-anchor="middle" font-size="9" fill="#7c3aed">generates Q</text>
 
     <!-- Thinking animation -->
     <g>
-      <circle cx="290" cy="95" r="2" fill="#4f46e5">
+      <circle cx="290" cy="95" r="2" fill="#7c3aed">
         <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="300" cy="95" r="2" fill="#4f46e5">
+      <circle cx="300" cy="95" r="2" fill="#7c3aed">
         <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" begin="0.2s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="310" cy="95" r="2" fill="#4f46e5">
+      <circle cx="310" cy="95" r="2" fill="#7c3aed">
         <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" begin="0.4s" repeatCount="indefinite"/>
       </circle>
     </g>
 
     <!-- Arrow -->
-    <line x1="350" y1="62" x2="375" y2="62" stroke="#4f46e5" stroke-width="1.5"/>
+    <line x1="350" y1="62" x2="375" y2="62" stroke="#7c3aed" stroke-width="1.5"/>
 
     <!-- TTS -->
     <rect x="375" y="40" width="85" height="45" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
@@ -176,10 +176,10 @@
   </g>
 
   <!-- Arrow -->
-  <line x1="190" y1="405" x2="230" y2="405" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,3">
+  <line x1="190" y1="405" x2="230" y2="405" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3">
     <animate attributeName="stroke-dashoffset" values="0;-8" dur="1s" repeatCount="indefinite"/>
   </line>
-  <polygon points="230,400 240,405 230,410" fill="#4f46e5"/>
+  <polygon points="230,400 240,405 230,410" fill="#7c3aed"/>
 
   <!-- Step 6: Auto Score -->
   <g filter="url(#shadow)">
@@ -278,5 +278,5 @@
 
   <!-- Footer -->
   <text x="400" y="475" text-anchor="middle" font-size="10" fill="#9ca3af">Built with Next.js + TypeScript + PostgreSQL + Deepgram</text>
-  <text x="400" y="490" text-anchor="middle" font-size="9" fill="#c7d2fe">github.com/akvinayaktiwari/VyostraAI-Interview</text>
+  <text x="400" y="490" text-anchor="middle" font-size="9" fill="#ddd6fe">github.com/akvinayaktiwari/VyostraAI-Interview</text>
 </svg>

@@ -1,41 +1,42 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" />
-  <img src="https://img.shields.io/badge/TypeScript-5.4-blue?style=for-the-badge&logo=typescript" />
-  <img src="https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss" />
-  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql" />
-  <img src="https://img.shields.io/badge/Deepgram-STT%2FTTS-13EF93?style=for-the-badge" />
+  <img src="docs/vyostra-logo.svg" alt="Vyostra AI" width="84" />
 </p>
 
-<h1 align="center">
-  <br>
-  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=800&size=40&duration=3000&pause=1000&color=4F46E5&center=true&vCenter=true&random=false&width=600&height=60&lines=Vyostra+AI+Interview;AI+Voice+Interviews;Automated+Scoring;Real-time+Proctoring" alt="Vyostra AI Interview" />
-</h1>
+<h1 align="center">Vyostra AI Interview</h1>
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=400&size=16&duration=4000&pause=2000&color=6B7280&center=true&vCenter=true&random=false&width=600&height=30&lines=AI-powered+voice+%26+video+interview+platform;Real-time+proctoring+%7C+Automated+scoring+%7C+Multi-tenant;Works+with+any+OpenAI-compatible+API" alt="Typing SVG" />
+  <b>AI voice &amp; video interviews with real-time proctoring and evidence-based scoring.</b><br />
+  <sub>Part of the <b>Vyostra AI</b> platform: AI agents built for Indian businesses.</sub>
 </p>
 
 <p align="center">
-  <a href="#-quick-start">Quick Start</a> &nbsp;&middot;&nbsp;
-  <a href="#-features">Features</a> &nbsp;&middot;&nbsp;
-  <a href="#-how-it-works">How It Works</a> &nbsp;&middot;&nbsp;
-  <a href="#-architecture">Architecture</a> &nbsp;&middot;&nbsp;
-  <a href="#-api-reference">API Reference</a>
+  <img src="https://readme-typing-svg.demolab.com?font=Plus+Jakarta+Sans&weight=700&size=18&duration=3500&pause=1200&color=7C3AED&center=true&vCenter=true&random=false&width=620&height=34&lines=Your+AI+interviewer%2C+available+24%2F7;Automated+scorecards+backed+by+evidence;Built-in+proctoring+for+every+interview;Works+with+any+OpenAI-compatible+model" alt="Vyostra AI Interview" />
+</p>
+
+<p align="center">
+  <a href="#quick-start">Quick Start</a> &nbsp;&middot;&nbsp;
+  <a href="#features-at-a-glance">Features</a> &nbsp;&middot;&nbsp;
+  <a href="#how-it-works">How It Works</a> &nbsp;&middot;&nbsp;
+  <a href="#pages">Pages</a> &nbsp;&middot;&nbsp;
+  <a href="#api-reference">API Reference</a>
 </p>
 
 <p align="center">
   <a href="https://github.com/akvinayaktiwari/VyostraAI-Interview/actions/workflows/ci.yml"><img src="https://github.com/akvinayaktiwari/VyostraAI-Interview/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
-  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" />
-  <img src="https://img.shields.io/badge/Status-Production%20Ready-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/Next.js-14-7c3aed?style=flat-square&logo=next.js&logoColor=white" alt="Next.js 14" />
+  <img src="https://img.shields.io/badge/TypeScript-5.4-7c3aed?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind-3.4-7c3aed?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-7c3aed?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Deepgram-STT%20%2F%20TTS-a855f7?style=flat-square" alt="Deepgram" />
+  <img src="https://img.shields.io/badge/License-MIT-a855f7?style=flat-square" alt="MIT License" />
 </p>
 
 ---
 
-## How It Works 
+## How It Works
 
 <p align="center">
-  <img src="docs/flow.svg" alt="Vyostra AI Interview Flow" width="100%" />
+  <img src="docs/flow.svg" alt="Vyostra AI Interview flow" width="100%" />
 </p>
 
 ---
@@ -109,7 +110,7 @@
 
 ## Quick Start
 
-### One-command setup
+### Setup
 
 ```bash
 # Clone
@@ -119,24 +120,28 @@ cd VyostraAI-Interview
 # Install
 npm install
 
-# Setup database
-psql -U postgres -c "CREATE DATABASE ai_interview_platform;"
-for f in migrations/*.sql; do psql -U postgres -d ai_interview_platform -f "$f"; done
+# Database (use -U postgres if your Postgres has that role)
+createdb ai_interview_platform
+for f in migrations/*.sql; do psql -d ai_interview_platform -f "$f"; done
 
-# Configure (edit with your API keys)
+# Configure: add your AI + Deepgram keys and DATABASE_URL
 cp .env.example .env.local
 
 # Start
 npm run dev
 ```
 
-Open http://localhost:3000/register to create the first account (the schema seeds a default organization but no users).
+Open http://localhost:3000/register to create the first account. The schema seeds a default organization but no users.
+
+### Local testing without login
+
+Set `NEXT_PUBLIC_AUTH_DISABLED=true` in `.env.local` and restart `npm run dev`. Login is skipped and every request runs as a local admin user ("Local Tester"), created automatically on first request. Never enable this on a server anyone else can reach.
 
 ### Docker
 
 ```bash
-docker build -t interview-ai .
-docker run -p 3000:3000 --env-file .env.local interview-ai
+docker build -t vyostra-ai-interview .
+docker run -p 3000:3000 --env-file .env.local vyostra-ai-interview
 ```
 
 ### Environment Variables
@@ -153,6 +158,7 @@ docker run -p 3000:3000 --env-file .env.local interview-ai
 | `TTS_PROVIDER` | No | `deepgram` (default) or `edge` (free) |
 | `EDGE_TTS_VOICE` | No | Voice ID (default: `en-IN-NeerjaNeural`) |
 | `EDGE_TTS_RATE` | No | Speed (default: `+10%`) |
+| `NEXT_PUBLIC_AUTH_DISABLED` | No | `true` skips login for local testing (default: `false`) |
 | `MAX_PROCTORING_STRIKES` | No | Proctoring strikes before auto-termination (default: `25`; `NEXT_PUBLIC_MAX_PROCTORING_STRIKES` also honoured) |
 | `SMTP_HOST` | No | Email SMTP host |
 | `SMTP_PORT` | No | Email SMTP port |
@@ -184,7 +190,7 @@ Works with **any OpenAI-compatible API**:
 | `/compare` | Interviewer | Side-by-side candidate comparison |
 | `/team` | Interviewer | Manage organization members |
 | `/templates` | Interviewer | Email template management |
-| `/settings/ai` | Interviewer | Per-organization AI provider settings |
+| `/settings/ai` | Admin | AI interviewer persona, scoring thresholds and boundaries |
 | `/dashboard/[id]` | Interviewer | Detail — transcript, scores, photos, proctoring |
 | `/review/[id]` | Interviewer | Scorecard with score rings |
 | `/login` | Public | Sign in |
@@ -304,12 +310,19 @@ Indian voices available with Edge TTS:
 
 ---
 
+## Design
+
+The UI follows the **Vyostra AI design system**: violet `#7c3aed` with a violet to purple (`#a855f7`) brand gradient, Plus Jakarta Sans for headings and Inter for body text, 16px card radius and 12px controls. The shared styles live in [`src/app/globals.css`](src/app/globals.css) and the animated logo in [`src/components/VyostraLogo.tsx`](src/components/VyostraLogo.tsx).
+
+---
+
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
 
 ---
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=500&size=14&duration=3000&pause=1000&color=9CA3AF&center=true&vCenter=true&random=false&width=400&height=25&lines=Built+with+Next.js+%2B+TypeScript+%2B+PostgreSQL;Open+source+%7C+MIT+License;Star+%E2%AD%90+if+you+find+this+useful!" alt="Footer" />
+  <img src="docs/vyostra-logo.svg" alt="" width="28" /><br />
+  <sub><b>Vyostra AI Interview</b> &middot; Built with Next.js, TypeScript and PostgreSQL</sub>
 </p>
