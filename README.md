@@ -348,7 +348,9 @@ The UI follows the **Vyostra AI design system**: violet `#7c3aed` with a violet 
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT © 2026 Vyostra AI. See [LICENSE](LICENSE).
+
+Vyostra AI Interview builds on the open-source [ai-interview-platform](https://github.com/vijaygupta18/ai-interview-platform) by Vijay, also MIT licensed.
 
 ---
 
