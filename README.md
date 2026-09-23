@@ -15,6 +15,7 @@
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> &nbsp;&middot;&nbsp;
+  <a href="#screenshots">Screenshots</a> &nbsp;&middot;&nbsp;
   <a href="#features-at-a-glance">Features</a> &nbsp;&middot;&nbsp;
   <a href="#how-it-works">How It Works</a> &nbsp;&middot;&nbsp;
   <a href="#pages">Pages</a> &nbsp;&middot;&nbsp;
@@ -38,6 +39,35 @@
 <p align="center">
   <img src="docs/flow.svg" alt="Vyostra AI Interview flow" width="100%" />
 </p>
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Interviews dashboard" width="100%" />
+  <br /><sub><b>Dashboard</b>: every interview with live status, AI score, verdict and proctoring at a glance</sub>
+</p>
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/scorecard.png" alt="Candidate scorecard" /><br /><sub><b>Scorecard</b>: five scored dimensions, assessment, strengths and focus-area coverage</sub></td>
+<td width="50%"><img src="docs/screenshots/compare.png" alt="Compare candidates" /><br /><sub><b>Compare</b>: side-by-side radar chart and per-dimension scores</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/interview-detail.png" alt="Interview detail" /><br /><sub><b>Interview detail</b>: timeline, shareable candidate link, scorecard and proctoring report</sub></td>
+<td width="50%"><img src="docs/screenshots/interview-room.png" alt="Candidate interview room" /><br /><sub><b>Candidate room</b>: consent and pre-interview checks before the AI interview starts</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/new-interview.png" alt="Create interview" /><br /><sub><b>Create interview</b>: candidate, resume, level, duration and focus areas</sub></td>
+<td width="50%"><img src="docs/screenshots/question-bank.png" alt="Question banks" /><br /><sub><b>Question banks</b>: reusable question sets per role and round</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/screenshots/ai-settings.png" alt="AI interviewer settings" /><br /><sub><b>AI settings</b> (admin): interviewer persona, hiring thresholds and topics to avoid</sub></td>
+</tr>
+</table>
+
+<sub>Screenshots use fictional demo data.</sub>
 
 ---
 

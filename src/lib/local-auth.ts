@@ -21,7 +21,7 @@ export const LOCAL_USER: LocalUser = {
   email: "local@localhost",
   name: "Local Tester",
   orgId: "00000000-0000-0000-0000-000000000001",
-  orgName: "NammaYatri",
+  orgName: "Vyostra AI",
   role: "admin",
 };
 

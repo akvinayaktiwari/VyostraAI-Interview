@@ -191,7 +191,7 @@ CREATE INDEX IF NOT EXISTS idx_webhooks_org ON webhooks(org_id);
 
 -- Default organization
 INSERT INTO organizations (id, name, slug)
-VALUES ('00000000-0000-0000-0000-000000000001', 'NammaYatri', 'nammayatri')
+VALUES ('00000000-0000-0000-0000-000000000001', 'Vyostra AI', 'vyostra-ai')
 ON CONFLICT (id) DO NOTHING;
 
 -- Create admin user via /register endpoint

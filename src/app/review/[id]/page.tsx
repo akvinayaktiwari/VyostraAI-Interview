@@ -33,7 +33,9 @@ interface InterviewData {
   candidateName: string;
   role: string;
   level: string;
-  date: string;
+  createdAt: string;
+  startedAt?: string | null;
+  endedAt?: string | null;
   duration: number;
   scorecard: {
     recommendation: "strong_hire" | "hire" | "lean_hire" | "lean_no_hire" | "no_hire" | "strong_no_hire";
@@ -286,7 +288,7 @@ export default function ReviewPage() {
             </p>
           </div>
           <div className="text-sm text-gray-500 sm:text-right">
-            <p>{new Date(data.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
+            <p>{new Date(data.endedAt ?? data.startedAt ?? data.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
             <p>{data.duration} minutes</p>
             <button
               onClick={async (e) => {
