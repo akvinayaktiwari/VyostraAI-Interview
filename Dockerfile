@@ -17,6 +17,9 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+# NEXT_PUBLIC_* values are inlined at build time, so the auth bypass must be set here
+ARG NEXT_PUBLIC_AUTH_DISABLED=false
+ENV NEXT_PUBLIC_AUTH_DISABLED=$NEXT_PUBLIC_AUTH_DISABLED
 
 RUN npm run build
 

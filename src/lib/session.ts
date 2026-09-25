@@ -1,4 +1,5 @@
 import { getServerSession, type Session } from "next-auth";
+import { headers } from "next/headers";
 import { authOptions } from "./auth";
 import { pool } from "./db";
 import { AUTH_DISABLED, LOCAL_SESSION, LOCAL_USER } from "./local-auth";
@@ -27,6 +28,9 @@ function ensureLocalUser(): Promise<void> {
 /** Drop-in replacement for getServerSession(authOptions) that honours the local auth bypass. */
 export async function getAppSession(): Promise<Session | null> {
   if (!AUTH_DISABLED) return getServerSession(authOptions);
+  // getServerSession reads request headers, which makes the route dynamic.
+  // Do the same here so Next.js never prerenders DB-backed routes at build time.
+  headers();
   await ensureLocalUser();
   return LOCAL_SESSION;
 }

@@ -217,6 +217,8 @@ The script installs Docker, opens 80/443 in the VM's own iptables (Oracle's Ubun
 
 Until `DEPLOY_ENABLED` is set, the workflow only builds and pushes the image.
 
+To run without login, also set the repo variable `NEXT_PUBLIC_AUTH_DISABLED=true`. The flag is compiled into the image, so it takes effect on the next build. Anyone who can reach the URL then gets admin access, so remove the variable (and redeploy) before sharing the site widely.
+
 **6. Deploy.** Push to `main` or run the **Deploy** workflow manually. Then open `https://<APP_DOMAIN>/register` to create the first account.
 
 Useful commands on the VM (`cd /opt/vyostra`): `docker compose ps`, `docker compose logs -f app`, and `docker compose exec db pg_dump -U vyostra ai_interview_platform > backup.sql` for a backup.

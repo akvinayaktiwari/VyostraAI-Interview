@@ -41,7 +41,10 @@ services:
 
   app:
     image: ${APP_IMAGE:-vyostra-ai-interview:local}
-    build: .
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_AUTH_DISABLED: ${NEXT_PUBLIC_AUTH_DISABLED:-false}
     restart: unless-stopped
     depends_on:
       db:
