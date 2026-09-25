@@ -174,6 +174,53 @@ docker build -t vyostra-ai-interview .
 docker run -p 3000:3000 --env-file .env.local vyostra-ai-interview
 ```
 
+### Docker Compose (full stack)
+
+`docker-compose.yml` runs the app, PostgreSQL 16 and Caddy (HTTPS). Migrations in `migrations/` run automatically before the app starts, and each file is applied once (tracked in `schema_migrations`).
+
+```bash
+cp .env.production.example .env   # set POSTGRES_PASSWORD, NEXTAUTH_SECRET, API keys
+# for local testing: APP_DOMAIN=localhost, NEXTAUTH_URL=https://localhost, APP_IMAGE=vyostra-ai-interview:local
+docker compose up -d --build
+```
+
+Database data and recordings (`/app/data`) live in named volumes, so they survive restarts and redeploys.
+
+### Deploy to Oracle Cloud (Always Free)
+
+The app runs on one Always Free Ampere A1 VM (ARM). Each push to `main` builds an arm64 image on GitHub's free ARM runners, pushes it to GHCR, and redeploys over SSH (`.github/workflows/deploy.yml`).
+
+**1. Create the VM.** In OCI, create a compute instance with shape `VM.Standard.A1.Flex` (for example 2 OCPU / 12 GB), image Ubuntu 24.04, a public IP, and your SSH key. If the region reports "out of capacity", retry later or pick another availability domain.
+
+**2. Open ports in OCI.** Networking → your VCN → subnet → Security List → add ingress rules from `0.0.0.0/0` for TCP 80, TCP 443 and UDP 443.
+
+**3. Bootstrap the VM.**
+
+```bash
+scp deploy/setup-vm.sh ubuntu@<VM_IP>:
+ssh ubuntu@<VM_IP> 'bash setup-vm.sh'
+```
+
+The script installs Docker, opens 80/443 in the VM's own iptables (Oracle's Ubuntu images block them by default) and creates `/opt/vyostra`.
+
+**4. Create the production env file** on the VM at `/opt/vyostra/.env`, based on `.env.production.example`. Without a domain, set `APP_DOMAIN=<ip-with-dashes>.sslip.io` (for example `140-238-1-2.sslip.io`) and `NEXTAUTH_URL=https://<that host>`. Caddy gets a Let's Encrypt certificate automatically.
+
+**5. Configure GitHub.** In repo Settings → Secrets and variables → Actions:
+
+| Name | Kind | Value |
+|------|------|-------|
+| `VM_HOST` | secret | VM public IP |
+| `VM_USER` | secret | `ubuntu` |
+| `VM_SSH_KEY` | secret | Private key for a deploy key authorised on the VM |
+| `VM_SSH_KNOWN_HOSTS` | secret | Output of `ssh-keyscan <VM_IP>` |
+| `DEPLOY_ENABLED` | variable | `true` |
+
+Until `DEPLOY_ENABLED` is set, the workflow only builds and pushes the image.
+
+**6. Deploy.** Push to `main` or run the **Deploy** workflow manually. Then open `https://<APP_DOMAIN>/register` to create the first account.
+
+Useful commands on the VM (`cd /opt/vyostra`): `docker compose ps`, `docker compose logs -f app`, and `docker compose exec db pg_dump -U vyostra ai_interview_platform > backup.sql` for a backup.
+
 ### Environment Variables
 
 | Variable | Required | Description |

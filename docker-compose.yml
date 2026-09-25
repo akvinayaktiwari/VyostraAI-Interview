@@ -1,0 +1,81 @@
+# Vyostra AI Interview — single-host stack (Oracle Cloud Always Free VM, or local)
+#
+#   caddy   -> HTTPS termination + reverse proxy (WebSockets pass through)
+#   app     -> Next.js standalone + WebSocket STT proxy (server-custom.js)
+#   db      -> PostgreSQL 16
+#   migrate -> one-shot job that applies migrations/*.sql before app starts
+#
+# Config comes from ./.env (see .env.production.example).
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vyostra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_interview_platform}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    image: postgres:16-alpine
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-vyostra}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-ai_interview_platform}
+    volumes:
+      - ./migrations:/migrations:ro
+      - ./deploy/migrate.sh:/migrate.sh:ro
+    entrypoint: ["sh", "/migrate.sh"]
+
+  app:
+    image: ${APP_IMAGE:-vyostra-ai-interview:local}
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vyostra}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ai_interview_platform}
+      NODE_ENV: production
+    volumes:
+      - appdata:/app/data
+    # Bound to loopback only: public traffic goes through Caddy.
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  appdata:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,105 @@
+name: Deploy
+
+# Builds an arm64 image (Oracle Ampere A1), pushes it to GHCR, then
+# ships the compose stack to the VM over SSH.
+#
+# Required repo secrets: VM_HOST, VM_USER, VM_SSH_KEY, VM_SSH_KNOWN_HOSTS
+# Required repo variable: DEPLOY_ENABLED=true (gates the deploy job until the VM exists)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    name: Build & push image
+    # Native arm64 runner (free for public repos) — no QEMU emulation
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    outputs:
+      image: ${{ steps.name.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Image name
+        id: name
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ steps.name.outputs.image }}:${{ github.sha }}
+            ${{ steps.name.outputs.image }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to VM
+    needs: image
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      APP_DIR: /opt/vyostra
+      TARGET: ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}
+      IMAGE: ${{ needs.image.outputs.image }}:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.VM_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Upload stack files
+        run: |
+          scp docker-compose.yml Caddyfile "$TARGET:$APP_DIR/"
+          scp deploy/migrate.sh "$TARGET:$APP_DIR/deploy/"
+          scp migrations/*.sql "$TARGET:$APP_DIR/migrations/"
+
+      - name: Pull and restart
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | ssh "$TARGET" \
+            "docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+          ssh "$TARGET" "cd $APP_DIR \
+            && test -f .env || { echo '.env missing in $APP_DIR'; exit 1; } \
+            && export APP_IMAGE=$IMAGE \
+            && docker compose pull app \
+            && docker compose up -d --no-build --remove-orphans \
+            && docker image prune -f \
+            && docker logout ghcr.io"
+
+      - name: Health check
+        run: |
+          for i in $(seq 1 30); do
+            if ssh "$TARGET" "curl -fsS http://127.0.0.1:3000/api/health"; then
+              echo; echo "healthy"; exit 0
+            fi
+            sleep 5
+          done
+          echo "app did not become healthy"
+          ssh "$TARGET" "cd $APP_DIR && docker compose ps && docker compose logs --tail=100 app migrate"
+          exit 1

@@ -1,0 +1,15 @@
+# APP_DOMAIN examples:
+#   interview.example.com      -> real domain, Let's Encrypt cert
+#   140-238-1-2.sslip.io       -> no domain needed; sslip.io resolves to the IP in the name
+#   localhost                  -> local testing with Caddy's internal self-signed cert
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	# Interview recordings are uploaded as a single request body
+	request_body {
+		max_size 200MB
+	}
+
+	# WebSocket upgrades (/api/stt-ws) are proxied transparently
+	reverse_proxy app:3000
+}
