@@ -186,22 +186,39 @@ docker compose up -d --build
 
 Database data and recordings (`/app/data`) live in named volumes, so they survive restarts and redeploys.
 
-### Deploy to Oracle Cloud (Always Free)
+### Deploy to Google Cloud (free tier)
 
-The app runs on one Always Free Ampere A1 VM (ARM). Each push to `main` builds an arm64 image on GitHub's free ARM runners, pushes it to GHCR, and redeploys over SSH (`.github/workflows/deploy.yml`).
+The app runs on one free-tier `e2-micro` VM (1 GB RAM, x86). Each push to `main` builds an amd64 image, pushes it to GHCR, and redeploys over SSH (`.github/workflows/deploy.yml`).
 
-**1. Create the VM.** In OCI, create a compute instance with shape `VM.Standard.A1.Flex` (for example 2 OCPU / 12 GB), image Ubuntu 24.04, a public IP, and your SSH key. If the region reports "out of capacity", retry later or pick another availability domain.
+Free-tier limits to stay within: one `e2-micro` in `us-central1`, `us-west1` or `us-east1`; a **standard** persistent disk of up to 30 GB (the default "balanced" disk is billed); 1 GB/month outbound traffic. Set a small budget alert under Billing → Budgets & alerts.
 
-**2. Open ports in OCI.** Networking → your VCN → subnet → Security List → add ingress rules from `0.0.0.0/0` for TCP 80, TCP 443 and UDP 443.
+**1. Create the VM** (from a machine with `gcloud` logged in to your project):
+
+```bash
+gcloud services enable compute.googleapis.com
+gcloud compute instances create vyostra-app \
+  --zone=us-central1-a --machine-type=e2-micro \
+  --image-family=ubuntu-2404-lts-amd64 --image-project=ubuntu-os-cloud \
+  --boot-disk-size=30GB --boot-disk-type=pd-standard \
+  --tags=http-server,https-server \
+  --metadata=ssh-keys="vyostra:$(cat ~/.ssh/vyostra_deploy.pub)"
+```
+
+**2. Open ports 80/443:**
+
+```bash
+gcloud compute firewall-rules create allow-web \
+  --allow=tcp:80,tcp:443,udp:443 --target-tags=http-server,https-server
+```
 
 **3. Bootstrap the VM.**
 
 ```bash
-scp deploy/setup-vm.sh ubuntu@<VM_IP>:
-ssh ubuntu@<VM_IP> 'bash setup-vm.sh'
+scp -i ~/.ssh/vyostra_deploy deploy/setup-vm.sh vyostra@<VM_IP>:
+ssh -i ~/.ssh/vyostra_deploy vyostra@<VM_IP> 'bash setup-vm.sh'
 ```
 
-The script installs Docker, opens 80/443 in the VM's own iptables (Oracle's Ubuntu images block them by default) and creates `/opt/vyostra`.
+The script installs Docker, adds 2 GB of swap (the VM only has 1 GB RAM) and creates `/opt/vyostra`.
 
 **4. Create the production env file** on the VM at `/opt/vyostra/.env`, based on `.env.production.example`. Without a domain, set `APP_DOMAIN=<ip-with-dashes>.sslip.io` (for example `140-238-1-2.sslip.io`) and `NEXTAUTH_URL=https://<that host>`. Caddy gets a Let's Encrypt certificate automatically.
 
@@ -210,7 +227,7 @@ The script installs Docker, opens 80/443 in the VM's own iptables (Oracle's Ubun
 | Name | Kind | Value |
 |------|------|-------|
 | `VM_HOST` | secret | VM public IP |
-| `VM_USER` | secret | `ubuntu` |
+| `VM_USER` | secret | `vyostra` |
 | `VM_SSH_KEY` | secret | Private key for a deploy key authorised on the VM |
 | `VM_SSH_KNOWN_HOSTS` | secret | Output of `ssh-keyscan <VM_IP>` |
 | `DEPLOY_ENABLED` | variable | `true` |

@@ -1,6 +1,6 @@
 name: Deploy
 
-# Builds an arm64 image (Oracle Ampere A1), pushes it to GHCR, then
+# Builds an amd64 image (GCP e2-micro), pushes it to GHCR, then
 # ships the compose stack to the VM over SSH.
 #
 # Required repo secrets: VM_HOST, VM_USER, VM_SSH_KEY, VM_SSH_KNOWN_HOSTS
@@ -23,8 +23,7 @@ permissions:
 jobs:
   image:
     name: Build & push image
-    # Native arm64 runner (free for public repos) — no QEMU emulation
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
       image: ${{ steps.name.outputs.image }}
@@ -46,7 +45,7 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/arm64
+          platforms: linux/amd64
           # Repo variable NEXT_PUBLIC_AUTH_DISABLED=true builds the no-login image
           build-args: |
             NEXT_PUBLIC_AUTH_DISABLED=${{ vars.NEXT_PUBLIC_AUTH_DISABLED || 'false' }}

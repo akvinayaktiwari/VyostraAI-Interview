@@ -1,4 +1,4 @@
-# Vyostra AI Interview — single-host stack (Oracle Cloud Always Free VM, or local)
+# Vyostra AI Interview — single-host stack (GCP free-tier e2-micro VM, or local)
 #
 #   caddy   -> HTTPS termination + reverse proxy (WebSockets pass through)
 #   app     -> Next.js standalone + WebSocket STT proxy (server-custom.js)
@@ -11,6 +11,8 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    # Sized for a 1 GB RAM host
+    command: ["postgres", "-c", "shared_buffers=64MB", "-c", "max_connections=40", "-c", "work_mem=4MB"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-vyostra}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
