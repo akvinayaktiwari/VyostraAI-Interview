@@ -200,6 +200,7 @@ gcloud compute instances create vyostra-app \
   --zone=us-central1-a --machine-type=e2-micro \
   --image-family=ubuntu-2404-lts-amd64 --image-project=ubuntu-os-cloud \
   --boot-disk-size=30GB --boot-disk-type=pd-standard \
+  --network-tier=STANDARD \
   --tags=http-server,https-server \
   --metadata=ssh-keys="vyostra:$(cat ~/.ssh/vyostra_deploy.pub)"
 ```
