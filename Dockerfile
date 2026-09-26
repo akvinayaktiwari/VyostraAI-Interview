@@ -59,7 +59,7 @@ USER node
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -q --spider http://localhost:3000/api/health || exit 1
+  CMD wget -q --spider http://127.0.0.1:3000/api/health || exit 1
 
 # Custom server with WebSocket STT proxy (wraps Next.js standalone server)
 COPY --from=builder /app/server-custom.js ./server-custom.js
