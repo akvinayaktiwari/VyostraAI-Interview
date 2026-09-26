@@ -3,6 +3,9 @@
 #   140-238-1-2.sslip.io       -> no domain needed; sslip.io resolves to the IP in the name
 #   localhost                  -> local testing with Caddy's internal self-signed cert
 {$APP_DOMAIN} {
+	# Access log (JSON to stdout): `docker compose logs caddy`
+	log
+
 	encode zstd gzip
 
 	# Interview recordings are uploaded as a single request body

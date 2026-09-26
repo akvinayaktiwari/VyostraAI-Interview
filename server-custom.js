@@ -68,11 +68,21 @@ function addWSProxy(server) {
     const { pathname, query } = parse(req.url, true);
     if (pathname !== "/api/stt-ws") return;
 
-    if (!query.token) { socket.write("HTTP/1.1 401\r\n\r\n"); socket.destroy(); return; }
+    if (!query.token) {
+      console.warn("[STT-WS] Rejected 401: no token");
+      socket.write("HTTP/1.1 401\r\n\r\n"); socket.destroy(); return;
+    }
     try {
       const { rows } = await pool.query("SELECT id FROM interviews WHERE token=$1 AND status IN ('in_progress','waiting')", [query.token]);
-      if (!rows.length) { socket.write("HTTP/1.1 403\r\n\r\n"); socket.destroy(); return; }
-    } catch { socket.write("HTTP/1.1 500\r\n\r\n"); socket.destroy(); return; }
+      if (!rows.length) {
+        // Length only, never the token itself. A short length usually means a truncated link.
+        console.warn(`[STT-WS] Rejected 403: no active interview for token (length=${String(query.token).length}, expected 64)`);
+        socket.write("HTTP/1.1 403\r\n\r\n"); socket.destroy(); return;
+      }
+    } catch (err) {
+      console.error("[STT-WS] Rejected 500: token lookup failed:", err.message);
+      socket.write("HTTP/1.1 500\r\n\r\n"); socket.destroy(); return;
+    }
 
     wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws));
   });
