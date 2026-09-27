@@ -1,4 +1,4 @@
-import type { TTSProvider } from "./types";
+import type { TTSProvider, VoiceOption } from "./types";
 
 // Simple semaphore — Creator tier allows 5 concurrent, leave headroom
 const MAX_CONCURRENT = parseInt(process.env.ELEVENLABS_MAX_CONCURRENT || "4");
@@ -16,23 +16,31 @@ function release() {
 
 export class ElevenLabsTTS implements TTSProvider {
   name = "elevenlabs";
+  label = "ElevenLabs";
   contentType = "audio/mpeg";
+  defaultVoice = process.env.ELEVENLABS_VOICE_ID || "2BJW5coyhAzSr8STdHbE"; // Aditi - Indian English female
 
-  async synthesize(text: string): Promise<Buffer> {
+  isConfigured(): boolean {
+    return Boolean(process.env.ELEVENLABS_API_KEY);
+  }
+
+  async listVoices(): Promise<VoiceOption[]> {
+    return [{ id: this.defaultVoice, label: "Configured voice", accent: "Indian", gender: "female", language: "en-IN" }];
+  }
+
+  async synthesize(text: string, voice?: string): Promise<Buffer> {
     const apiKey = process.env.ELEVENLABS_API_KEY;
     if (!apiKey) throw new Error("ELEVENLABS_API_KEY not configured");
 
     await acquire();
     try {
-      return await this._call(text, apiKey);
+      return await this._call(text, apiKey, voice || this.defaultVoice);
     } finally {
       release();
     }
   }
 
-  private async _call(text: string, apiKey: string, attempt = 1): Promise<Buffer> {
-
-    const voiceId = process.env.ELEVENLABS_VOICE_ID || "2BJW5coyhAzSr8STdHbE"; // Aditi - Indian English female
+  private async _call(text: string, apiKey: string, voiceId: string, attempt = 1): Promise<Buffer> {
     const model = process.env.ELEVENLABS_MODEL || "eleven_turbo_v2_5";
     const stability = parseFloat(process.env.ELEVENLABS_STABILITY || "0.5");
     const similarity = parseFloat(process.env.ELEVENLABS_SIMILARITY || "0.75");
@@ -68,7 +76,7 @@ export class ElevenLabsTTS implements TTSProvider {
       if (res.status === 409 && attempt < 4) {
         clearTimeout(timeout);
         await new Promise((r) => setTimeout(r, 500 * attempt));
-        return this._call(text, apiKey, attempt + 1);
+        return this._call(text, apiKey, voiceId, attempt + 1);
       }
 
       if (!res.ok) {

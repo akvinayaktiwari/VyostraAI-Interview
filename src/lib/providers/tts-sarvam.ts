@@ -1,10 +1,20 @@
-import type { TTSProvider } from "./types";
+import type { TTSProvider, VoiceOption } from "./types";
 
 export class SarvamTTS implements TTSProvider {
   name = "sarvam";
+  label = "Sarvam (Indian voices)";
   contentType = "audio/wav";
+  defaultVoice = process.env.SARVAM_SPEAKER || "priya";
 
-  async synthesize(text: string): Promise<Buffer> {
+  isConfigured(): boolean {
+    return Boolean(process.env.SARVAM_API_KEY);
+  }
+
+  async listVoices(): Promise<VoiceOption[]> {
+    return [{ id: this.defaultVoice, label: this.defaultVoice, accent: "Indian", gender: "neutral", language: "en-IN" }];
+  }
+
+  async synthesize(text: string, voice?: string): Promise<Buffer> {
     const apiKey = process.env.SARVAM_API_KEY;
     if (!apiKey) throw new Error("SARVAM_API_KEY not configured");
 
@@ -25,7 +35,7 @@ export class SarvamTTS implements TTSProvider {
         body: JSON.stringify({
           inputs: chunks,
           target_language_code: process.env.SARVAM_LANGUAGE || "en-IN",
-          speaker: process.env.SARVAM_SPEAKER || "priya",
+          speaker: voice || this.defaultVoice,
           model: "bulbul:v3",
           pace: parseFloat(process.env.SARVAM_PACE || "1.2"),
         }),

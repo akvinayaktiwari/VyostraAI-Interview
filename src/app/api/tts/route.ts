@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import { stripThinking } from "@/lib/ai";
-import { getTTSProvider } from "@/lib/providers";
+import { getTTSProvider, type ResolvedVoice } from "@/lib/providers";
 import { validateAccessPost } from "@/lib/auth-check";
+import { getInterview } from "@/lib/store";
+import { resolveInterviewVoice } from "@/lib/voice";
+
+/** The interview's voice when an interview is given, else the server default. */
+async function voiceFor(interviewId: string | undefined): Promise<ResolvedVoice> {
+  const interview = interviewId ? await getInterview(interviewId) : null;
+  if (interview) return resolveInterviewVoice(interview);
+  const provider = getTTSProvider();
+  return { provider, voice: provider.defaultVoice, source: "server" };
+}
 
 export async function POST(req: Request) {
   try {
@@ -18,13 +28,13 @@ export async function POST(req: Request) {
     }
 
     // Strip thinking tags, then remove non-English Unicode (MiniMax leaks CJK chars)
-    const cleanedText = stripThinking(text).replace(/[^\x20-\x7E\u00C0-\u024F]/g, " ").replace(/\s{2,}/g, " ").trim();
-    const ttsProvider = getTTSProvider();
-    const audioBuffer = await ttsProvider.synthesize(cleanedText);
+    const cleanedText = stripThinking(text).replace(/[^\x20-\x7EÀ-ɏ]/g, " ").replace(/\s{2,}/g, " ").trim();
+    const { provider, voice } = await voiceFor(interviewId && token ? interviewId : undefined);
+    const audioBuffer = await provider.synthesize(cleanedText, voice);
 
     return NextResponse.json({
       audio: audioBuffer.toString("base64"),
-      contentType: ttsProvider.contentType,
+      contentType: provider.contentType,
     });
   } catch (error) {
     console.error("TTS error:", error);

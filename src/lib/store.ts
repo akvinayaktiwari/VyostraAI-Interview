@@ -1,4 +1,5 @@
 import { pool } from "./db";
+import type { VoiceSelection } from "./providers/types";
 
 export interface Interview {
   id: string;
@@ -25,6 +26,7 @@ export interface Interview {
   expiresAt: string | null;
   orgId?: string;
   createdBy?: string;
+  voice?: VoiceSelection | null;  // per-interview override; null = org default
 }
 
 export interface TranscriptEntry {
@@ -54,8 +56,8 @@ export interface Scorecard {
 
 export async function saveInterview(interview: Omit<Interview, "transcript" | "proctoring">): Promise<void> {
   await pool.query(
-    `INSERT INTO interviews (id, resume, resume_file_name, candidate_email, candidate_name, candidate_phone, token, browser_fingerprint, role, level, focus_areas, duration, round_type, language, status, scorecard, created_at, started_at, ended_at, expires_at, org_id, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+    `INSERT INTO interviews (id, resume, resume_file_name, candidate_email, candidate_name, candidate_phone, token, browser_fingerprint, role, level, focus_areas, duration, round_type, language, status, scorecard, created_at, started_at, ended_at, expires_at, org_id, created_by, voice)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
      ON CONFLICT (id) DO UPDATE SET
        status = EXCLUDED.status,
        scorecard = EXCLUDED.scorecard,
@@ -85,6 +87,7 @@ export async function saveInterview(interview: Omit<Interview, "transcript" | "p
       interview.expiresAt,
       interview.orgId || null,
       interview.createdBy || null,
+      interview.voice ? JSON.stringify(interview.voice) : null,
     ]
   );
 }
@@ -122,6 +125,7 @@ export async function getInterview(id: string): Promise<Interview | null> {
     expiresAt: row.expires_at?.toISOString() || null,
     orgId: row.org_id || null,
     createdBy: row.created_by || null,
+    voice: row.voice || null,
   };
 }
 
@@ -158,6 +162,7 @@ export async function getInterviewWithPhotos(id: string): Promise<Interview | nu
     expiresAt: row.expires_at?.toISOString() || null,
     orgId: row.org_id || null,
     createdBy: row.created_by || null,
+    voice: row.voice || null,
   };
 }
 

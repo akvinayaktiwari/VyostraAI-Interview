@@ -1,4 +1,5 @@
 import { pool } from "./db";
+import type { VoiceSelection } from "./providers/types";
 
 export interface AISettings {
   persona: {
@@ -35,6 +36,9 @@ export interface AISettings {
   boundaries: {
     bannedTopics: string[];       // chips
   };
+  // Organization default voice; empty provider = server default (TTS_PROVIDER).
+  // Interviews can override it individually.
+  voice: VoiceSelection;
 }
 
 export const DEFAULT_AI_SETTINGS: AISettings = {
@@ -61,6 +65,7 @@ export const DEFAULT_AI_SETTINGS: AISettings = {
   scorecard: { customCriteria: "" },
   company: { cultureNotes: "", hiringBar: "balanced" },
   boundaries: { bannedTopics: [] },
+  voice: { provider: "", voice: "" },
 };
 
 /**
@@ -102,6 +107,7 @@ export function mergeSettings(partial: Partial<AISettings> | null | undefined): 
     scorecard: { ...DEFAULT_AI_SETTINGS.scorecard, ...(p.scorecard || {}) },
     company: { ...DEFAULT_AI_SETTINGS.company, ...(p.company || {}) },
     boundaries: { ...DEFAULT_AI_SETTINGS.boundaries, ...(p.boundaries || {}) },
+    voice: { ...DEFAULT_AI_SETTINGS.voice, ...(p.voice || {}) },
   };
 }
 

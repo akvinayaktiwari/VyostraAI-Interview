@@ -262,6 +262,17 @@ Useful commands on the VM (`cd /opt/vyostra`): `docker compose ps`, `docker comp
 | `SMTP_USER` | No | Email username |
 | `SMTP_PASS` | No | Email password |
 
+### Interviewer Voices
+
+Voices are chosen in the app, not in config:
+
+- **AI Settings → Voice** sets the organization default, with a ▶ Preview button.
+- **New Interview → Interviewer Voice** overrides it for a single interview (leave it on "Organization default" to inherit).
+
+The voice actually used is resolved per interview as *interview override → organization default → server default* (`TTS_PROVIDER` + `DEEPGRAM_TTS_VOICE`), and logged as `[Stream] Voice for <id>: <provider>/<voice> (<source>)`.
+
+Providers live in `src/lib/providers/`. Only providers whose API key is set appear as selectable; Deepgram lists its voices live from its API. To add a provider (for example a realtime speech model), implement `TTSProvider` in `src/lib/providers/tts-<name>.ts` and add one line to `REGISTRY` in `src/lib/providers/index.ts`. The pickers pick it up automatically.
+
 ### Supported AI Providers
 
 Works with **any OpenAI-compatible API**:

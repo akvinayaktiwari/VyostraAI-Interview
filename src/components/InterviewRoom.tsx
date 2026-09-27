@@ -569,7 +569,8 @@ export function InterviewRoom({ interviewId }: { interviewId: string }) {
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        // interviewId + token so the line is spoken in this interview's voice
+        body: JSON.stringify({ text, interviewId, token: tokenRef.current }),
       });
       const data = await res.json();
       if (!data.audio) throw new Error("No audio in TTS response");
@@ -602,7 +603,7 @@ export function InterviewRoom({ interviewId }: { interviewId: string }) {
       isAISpeakingRef.current = false;
       setCurrentAIText("");
     }
-  }, []);
+  }, [interviewId]);
   speakTextRef.current = speakText;
 
   const getAIResponse = useCallback(

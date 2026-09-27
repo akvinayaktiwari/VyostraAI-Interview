@@ -1,14 +1,24 @@
-import type { TTSProvider } from "./types";
+import type { TTSProvider, VoiceOption } from "./types";
 
 export class CartesiaTTS implements TTSProvider {
   name = "cartesia";
+  label = "Cartesia";
   contentType = "audio/wav";
+  defaultVoice = process.env.CARTESIA_VOICE_ID || "f6141af3-5f94-418c-80ed-a45d450e7e2e"; // Priya - Trusted Operator (Indian female)
 
-  async synthesize(text: string): Promise<Buffer> {
+  isConfigured(): boolean {
+    return Boolean(process.env.CARTESIA_API_KEY);
+  }
+
+  async listVoices(): Promise<VoiceOption[]> {
+    return [{ id: this.defaultVoice, label: "Configured voice", accent: "Indian", gender: "female", language: "en-IN" }];
+  }
+
+  async synthesize(text: string, voice?: string): Promise<Buffer> {
     const apiKey = process.env.CARTESIA_API_KEY;
     if (!apiKey) throw new Error("CARTESIA_API_KEY not configured");
 
-    const voiceId = process.env.CARTESIA_VOICE_ID || "f6141af3-5f94-418c-80ed-a45d450e7e2e"; // Priya - Trusted Operator (Indian female)
+    const voiceId = voice || this.defaultVoice;
     const model = process.env.CARTESIA_MODEL || "sonic-2";
     const speed = parseFloat(process.env.CARTESIA_SPEED || "1.0");
     const language = process.env.CARTESIA_LANGUAGE || "en";

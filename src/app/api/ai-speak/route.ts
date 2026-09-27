@@ -4,7 +4,7 @@ import { getAIResponse, stripThinking } from "@/lib/ai";
 import { rateLimit } from "@/lib/rate-limit";
 import { validateAccessPost } from "@/lib/auth-check";
 import { pool } from "@/lib/db";
-import { getTTSProvider } from "@/lib/providers";
+import { resolveInterviewVoice } from "@/lib/voice";
 
 // Combined AI response + TTS in ONE endpoint
 // Returns audio directly — no separate TTS call needed
@@ -93,11 +93,11 @@ export async function POST(req: Request) {
       .trim();
 
     try {
-      const ttsProvider = getTTSProvider();
+      const { provider: ttsProvider, voice: ttsVoice } = await resolveInterviewVoice(interview);
 
       // Parallelize TTS generation + AI transcript save
       const [audioBuffer] = await Promise.all([
-        ttsProvider.synthesize(ttsText || cleanedText),
+        ttsProvider.synthesize(ttsText || cleanedText, ttsVoice),
         addTranscriptEntry(interviewId, { role: "ai", text: aiText, timestamp: new Date().toISOString() }),
       ]);
 

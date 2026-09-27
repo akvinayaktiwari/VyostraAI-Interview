@@ -3,7 +3,7 @@ import { stripThinking, buildInterviewPrompt } from "@/lib/ai";
 import { validateAccessPost } from "@/lib/auth-check";
 import { rateLimit } from "@/lib/rate-limit";
 import { pool } from "@/lib/db";
-import { getTTSProvider } from "@/lib/providers";
+import { resolveInterviewVoice } from "@/lib/voice";
 
 // Clean text for TTS — remove special characters that cause TTS to speak them literally
 function cleanForTTS(text: string): string {
@@ -93,7 +93,8 @@ export async function POST(req: Request) {
 
     // Stream AI response + TTS pipeline
     const encoder = new TextEncoder();
-    const ttsProvider = getTTSProvider();
+    const { provider: ttsProvider, voice: ttsVoice, source: voiceSource } = await resolveInterviewVoice(interview);
+    console.log(`[Stream] Voice for ${interviewId}: ${ttsProvider.name}/${ttsVoice} (${voiceSource})`);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -182,7 +183,7 @@ export async function POST(req: Request) {
             if (!ttsText) return;
 
             // Generate TTS in parallel (client plays in order using idx)
-            const p = ttsProvider.synthesize(ttsText).then((audioBuffer) => {
+            const p = ttsProvider.synthesize(ttsText, ttsVoice).then((audioBuffer) => {
               const audioBase64 = audioBuffer.toString("base64");
               safeEnqueue(encoder.encode(`data: ${JSON.stringify({
                 type: "audio",

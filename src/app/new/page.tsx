@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { VoicePicker } from "@/components/VoicePicker";
+import type { VoiceSelection } from "@/lib/providers/types";
 
 const LEVELS = ["Intern", "Junior", "Mid", "Senior", "Staff", "Principal", "Manager", "Director"];
 const DURATIONS = [10, 15, 20, 30, 45, 60, 90, 120];
@@ -58,6 +60,7 @@ export default function NewInterviewPage() {
   const [selectedBankId, setSelectedBankId] = useState<string>("");
   const [emailTemplates, setEmailTemplates] = useState<{ id: string; name: string; subject: string; description: string }[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [voice, setVoice] = useState<VoiceSelection | null>(null); // null = organization default
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -124,6 +127,7 @@ export default function NewInterviewPage() {
         if (selectedBankId) formData.append("questionBankId", selectedBankId);
         if (additionalContext.trim()) formData.append("additionalContext", additionalContext.trim());
         if (selectedTemplateId) formData.append("emailTemplateId", selectedTemplateId);
+        if (voice) { formData.append("voiceProvider", voice.provider); formData.append("voice", voice.voice); }
         if (file) formData.append("resume", file);
 
         const res = await fetch("/api/create-interview", { method: "POST", body: formData });
@@ -153,6 +157,7 @@ export default function NewInterviewPage() {
             if (selectedBankId) formData.append("questionBankId", selectedBankId);
             if (additionalContext.trim()) formData.append("additionalContext", additionalContext.trim());
             if (selectedTemplateId) formData.append("emailTemplateId", selectedTemplateId);
+            if (voice) { formData.append("voiceProvider", voice.provider); formData.append("voice", voice.voice); }
             if (file) formData.append("resume", file);
 
             const res = await fetch("/api/create-interview", { method: "POST", body: formData });
@@ -476,6 +481,12 @@ export default function NewInterviewPage() {
                       </select>
                     </div>
                   )}
+                </div>
+
+                {/* Voice */}
+                <div>
+                  <label className="label">Interviewer Voice</label>
+                  <VoicePicker value={voice} onChange={setVoice} inheritLabel="Organization default" selectClassName="input-field" />
                 </div>
 
                 {/* Focus Areas */}

@@ -6,6 +6,7 @@ import { sendInterviewInvite } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { pool } from "@/lib/db";
 import mammoth from "mammoth";
+import { validateVoiceSelection } from "@/lib/providers";
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
@@ -44,12 +45,20 @@ export async function POST(req: Request) {
     const emailTemplateId = (formData.get("emailTemplateId") as string) || "";
     const additionalContext = (formData.get("additionalContext") as string) || "";
     const questionBankId = formData.get("questionBankId") as string;
+    const voiceProvider = (formData.get("voiceProvider") as string) || "";
+    const voiceId = (formData.get("voice") as string) || "";
 
     if (!role || !level) {
       return NextResponse.json({ error: "Missing required fields: role, level" }, { status: 400 });
     }
     if (duration < 5 || duration > 180) {
       return NextResponse.json({ error: "Duration must be between 5 and 180 minutes" }, { status: 400 });
+    }
+    // Optional per-interview voice; omitted = organization default
+    const voice = voiceProvider ? { provider: voiceProvider, voice: voiceId } : null;
+    if (voice) {
+      const problem = validateVoiceSelection(voice);
+      if (problem) return NextResponse.json({ error: `Invalid voice: ${problem}` }, { status: 400 });
     }
 
     let resumeText = "";
@@ -146,6 +155,7 @@ export async function POST(req: Request) {
       expiresAt: expiresAt.toISOString(),
       orgId: (session?.user as any)?.orgId || undefined,
       createdBy: (session?.user as any)?.id || undefined,
+      voice,
     };
 
     await saveInterview(interview);

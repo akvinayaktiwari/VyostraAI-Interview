@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { VoicePicker } from "@/components/VoicePicker";
 
 type AISettings = any;
 
@@ -119,6 +120,17 @@ export default function AISettingsPage() {
               <option value="warm">Warm</option>
               <option value="casual">Casual</option>
             </select>
+          </Row>
+        </Section>
+
+        {/* Voice */}
+        <Section title="Voice" desc="Default interviewer voice for new interviews. Each interview can override it when you create it.">
+          <Row label="Default voice">
+            <VoicePicker
+              value={settings.voice?.provider ? settings.voice : null}
+              onChange={(v) => update("voice", v ?? { provider: "", voice: "" })}
+              inheritLabel="Server default"
+            />
           </Row>
         </Section>
 

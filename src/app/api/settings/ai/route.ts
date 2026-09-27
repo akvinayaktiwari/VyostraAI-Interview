@@ -8,6 +8,7 @@ import {
   DEFAULT_AI_SETTINGS,
   AISettings,
 } from "@/lib/ai-settings";
+import { validateVoiceSelection } from "@/lib/providers";
 
 export async function GET() {
   const session = await getAppSession();
@@ -60,6 +61,14 @@ export async function PUT(req: Request) {
   ] as const) {
     const v = validateCustomText(text);
     if (!v.ok) errors.push(`${field}: ${v.reason}`);
+  }
+
+  // Default voice: empty provider means "server default"; otherwise it must be usable
+  if (merged.voice.provider) {
+    const problem = validateVoiceSelection(merged.voice);
+    if (problem) errors.push(`voice: ${problem}`);
+  } else {
+    merged.voice = { provider: "", voice: "" };
   }
 
   // Persona name sanity
