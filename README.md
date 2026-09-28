@@ -389,7 +389,7 @@ webhooks (org-scoped event notifications)
 
 | Provider | Setting | Voice | Cost |
 |----------|---------|-------|------|
-| Deepgram Aura | `TTS_PROVIDER=deepgram` | `aura-angus-en` (Indian male) | $200 free credits |
+| Deepgram Aura | `TTS_PROVIDER=deepgram` | `aura-2-thalia-en` (female) | $200 free credits |
 | Edge TTS | `TTS_PROVIDER=edge` | `en-IN-NeerjaNeural` (Indian female) | **Free forever** |
 
 Indian voices available with Edge TTS:

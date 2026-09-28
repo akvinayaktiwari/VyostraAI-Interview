@@ -1,11 +1,13 @@
 import { getAppSession } from "./session";
 import { pool } from "./db";
+import { isValidInterviewId } from "./interview-id";
 
 /**
  * Validates either: logged-in session OR valid interview token.
  * Returns the session if authenticated, or null if unauthorized.
  */
 export async function validateAccess(req: Request, interviewId: string): Promise<{ authorized: boolean; session: any }> {
+  if (!isValidInterviewId(interviewId)) return { authorized: false, session: null };
   // Check session first (interviewer)
   const session = await getAppSession();
   if (session?.user) {
@@ -32,6 +34,7 @@ export async function validateAccess(req: Request, interviewId: string): Promise
  * Validates that interviewId exists in the database.
  */
 export async function validateInterviewExists(interviewId: string): Promise<boolean> {
+  if (!isValidInterviewId(interviewId)) return false;
   const { rows } = await pool.query("SELECT id FROM interviews WHERE id = $1", [interviewId]);
   return rows.length > 0;
 }
@@ -40,6 +43,7 @@ export async function validateInterviewExists(interviewId: string): Promise<bool
  * Validates access for POST endpoints: checks session OR interview token from request body.
  */
 export async function validateAccessPost(interviewId: string, token?: string): Promise<boolean> {
+  if (!isValidInterviewId(interviewId)) return false;
   // Check session first (interviewer)
   const session = await getAppSession();
   if (session?.user) {

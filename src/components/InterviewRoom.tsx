@@ -151,6 +151,7 @@ export function InterviewRoom({ interviewId }: { interviewId: string }) {
   const [screenSharing, setScreenSharing] = useState(false);
   const isMobile = typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const [expired, setExpired] = useState(false);
+  const [invalidLink, setInvalidLink] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [aiError, setAiError] = useState(false);
   const lastTranscriptRef = useRef<TranscriptEntry[]>([]);
@@ -246,6 +247,12 @@ export function InterviewRoom({ interviewId }: { interviewId: string }) {
       try {
         const tokenParam = tokenRef.current ? `?token=${tokenRef.current}` : "";
         const interviewRes = await fetch(`/api/interview/${interviewId}${tokenParam}`);
+        // Wrong or truncated link (e.g. cut off when copied): stop here instead of a silent room
+        if (!interviewRes.ok) {
+          setInvalidLink(true);
+          setIsLoading(false);
+          return;
+        }
         const interview = await interviewRes.json();
         // Check if interview link has expired
         if (interview.expired || (interview.expiresAt && new Date(interview.expiresAt) < new Date())) {
@@ -1107,6 +1114,21 @@ export function InterviewRoom({ interviewId }: { interviewId: string }) {
           <h2 className="text-xl font-semibold text-white">Interview Link Expired</h2>
           <p className="mt-3 text-sm text-zinc-400">
             This interview link has expired. Please contact the interviewer for a new link.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Invalid Link Screen ──────────────────────────────────────────────────
+  if (invalidLink) {
+    return (
+      <div className="flex h-screen items-center justify-center px-4">
+        <div className="glass w-full max-w-sm rounded-2xl p-8 text-center">
+          <div className="mb-4 text-4xl text-zinc-500">&#9888;</div>
+          <h2 className="text-xl font-semibold text-white">Invalid Interview Link</h2>
+          <p className="mt-3 text-sm text-zinc-400">
+            This link is incomplete or incorrect. Please open the full link from your invitation email, or contact the interviewer.
           </p>
         </div>
       </div>

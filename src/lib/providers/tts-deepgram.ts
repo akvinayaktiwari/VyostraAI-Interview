@@ -42,7 +42,7 @@ export class DeepgramTTS implements TTSProvider {
   name = "deepgram";
   label = "Deepgram Aura";
   contentType = "audio/mpeg";
-  defaultVoice = process.env.DEEPGRAM_TTS_VOICE || "aura-angus-en";
+  defaultVoice = process.env.DEEPGRAM_TTS_VOICE || "aura-2-thalia-en";
 
   private voiceCache: { voices: VoiceOption[]; fetchedAt: number } | null = null;
 

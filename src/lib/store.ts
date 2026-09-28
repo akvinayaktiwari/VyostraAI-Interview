@@ -1,4 +1,5 @@
 import { pool } from "./db";
+import { isValidInterviewId } from "./interview-id";
 import type { VoiceSelection } from "./providers/types";
 
 export interface Interview {
@@ -93,6 +94,7 @@ export async function saveInterview(interview: Omit<Interview, "transcript" | "p
 }
 
 export async function getInterview(id: string): Promise<Interview | null> {
+  if (!isValidInterviewId(id)) return null;
   const { rows } = await pool.query("SELECT * FROM interviews WHERE id = $1", [id]);
   if (rows.length === 0) return null;
 
@@ -130,6 +132,7 @@ export async function getInterview(id: string): Promise<Interview | null> {
 }
 
 export async function getInterviewWithPhotos(id: string): Promise<Interview | null> {
+  if (!isValidInterviewId(id)) return null;
   const { rows } = await pool.query("SELECT * FROM interviews WHERE id = $1", [id]);
   if (rows.length === 0) return null;
 
