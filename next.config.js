@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Don't advertise the framework in response headers
+  poweredByHeader: false,
   experimental: {
     serverComponentsExternalPackages: ['@deepgram/sdk'],
   },

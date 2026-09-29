@@ -6,14 +6,14 @@ import { AUTH_DISABLED, LOCAL_SESSION, LOCAL_USER } from "./local-auth";
 
 let localUserReady: Promise<void> | null = null;
 
-/** Make sure the local test user row exists (FKs such as created_by point at it). */
+/** Make sure the local user row exists and matches LOCAL_USER (FKs such as created_by point at it). */
 function ensureLocalUser(): Promise<void> {
   if (!localUserReady) {
     localUserReady = pool
       .query(
         `INSERT INTO users (id, org_id, email, name, password_hash, role)
          VALUES ($1, $2, $3, $4, 'auth-disabled', $5)
-         ON CONFLICT (id) DO NOTHING`,
+         ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, name = EXCLUDED.name`,
         [LOCAL_USER.id, LOCAL_USER.orgId, LOCAL_USER.email, LOCAL_USER.name, LOCAL_USER.role]
       )
       .then(() => undefined)

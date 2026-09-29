@@ -18,8 +18,8 @@ export interface LocalUser {
 
 export const LOCAL_USER: LocalUser = {
   id: "00000000-0000-0000-0000-00000000beef",
-  email: "local@localhost",
-  name: "Local Tester",
+  email: "admin@vyostra.com",
+  name: "Vyostra Admin",
   orgId: "00000000-0000-0000-0000-000000000001",
   orgName: "Vyostra AI",
   role: "admin",

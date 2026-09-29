@@ -165,7 +165,7 @@ Open http://localhost:3000/register to create the first account. The schema seed
 
 ### Local testing without login
 
-Set `NEXT_PUBLIC_AUTH_DISABLED=true` in `.env.local` and restart `npm run dev`. Login is skipped and every request runs as a local admin user ("Local Tester"), created automatically on first request. Never enable this on a server anyone else can reach.
+Set `NEXT_PUBLIC_AUTH_DISABLED=true` in `.env.local` and restart `npm run dev`. Login is skipped and every request runs as a local admin user ("Vyostra Admin"), created automatically on first request. Never enable this on a server anyone else can reach.
 
 ### Docker
 
